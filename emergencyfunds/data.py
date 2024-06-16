@@ -49,4 +49,4 @@ def getStockData(ticker = '^GSPC'):
 
 def getStockDataFromYFinance( ticker ): # ^GSPC is the ticker symbol for S&P 500
     ticker = yf.Ticker(ticker)
-    return ticker.history(period="max")
+    return ticker.history(period="max", auto_adjust=True, rounding=True)
