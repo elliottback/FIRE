@@ -40,10 +40,10 @@ def getStockData(ticker = '^GSPC'):
 
     if os.path.exists(file_path):
         print(f"DataFrame read from {file_path}")
-        return pd.read_csv(file_path)
+        return pd.read_csv(file_path, index_col = 'Date')
     else:
         dataframe = getStockDataFromYFinance(ticker)
-        dataframe.to_csv(file_path, index=False)
+        dataframe.to_csv(file_path, index=True)
         print(f"DataFrame cached as {file_path}")
         return dataframe
 
