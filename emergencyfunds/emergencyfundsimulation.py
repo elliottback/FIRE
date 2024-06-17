@@ -6,8 +6,7 @@ def calculate_total_returns(start_date, monthly_investment, dividend_tax_rate):
     hist = data.getStockData( 'SPY' )
 
     # Ensure 'Date' column is a datetime index
-    hist.index = pd.to_datetime(hist.index).tz_localize(None)
-
+    hist.index = pd.to_datetime(hist.index, utc=True)
     print(hist.tail())
 
     # Prepare DataFrame to store investment history
@@ -20,17 +19,20 @@ def calculate_total_returns(start_date, monthly_investment, dividend_tax_rate):
 
     # Simulate the monthly investments
     total_shares = 0.0
-    pd_start = pd.to_datetime(start_date)
+    pd_start = pd.to_datetime(start_date).tz_localize(None)
+    last_month = None
 
     for date, row in hist.iterrows():
+        date = date.tz_localize(None)
         if date < pd_start:
             continue
 
-        if date.day == 1:  # Assuming investments are made at the start of each month
+        if last_month is None or date.month != last_month:  # Assuming investments are made at the start of each month
             shares_bought = monthly_investment / row['Open']
             total_shares += shares_bought
             investments.at[date, 'Investment'] = monthly_investment
             investments.at[date, 'Shares'] = shares_bought
+            last_month = date.month
 
         investments.at[date, 'Total Shares'] = total_shares
 
@@ -50,8 +52,7 @@ def calculate_total_returns(start_date, monthly_investment, dividend_tax_rate):
 
 
 # Example usage
-start_date = '2020-01-01'
-end_date = '2023-01-01'
+start_date = '2006-01-01'
 monthly_investment = 1000  # $1000 per month
 dividend_tax_rate = 0.15  # 15% tax on dividends
 
