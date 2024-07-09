@@ -1,5 +1,57 @@
 import pandas as pd
 import data as data
+from datetime import date, timedelta
+import holidays
+
+
+def adjust_for_holidays_and_weekends_backward(pay_date: date, us_holidays: holidays.HolidayBase) -> date:
+    while pay_date in us_holidays or pay_date.weekday() >= 5:  # 5: Saturday, 6: Sunday
+        pay_date -= timedelta(days=1)
+    return pay_date
+
+def generate_bi_monthly_paydates(inputDate: date):
+    # List to store the pay dates
+    paydates = []
+
+    # start year / month
+    start_year = inputDate.year
+    start_month = inputDate.month
+
+    # US holidays for the given year(s)
+    us_holidays = holidays.US(years=range(start_year, start_year + (num_months // 12) + 1))
+
+    # Start from the specified year and month
+    current_year = start_year
+    current_month = start_month
+
+    for _ in range(num_months):
+        # 1st of the month
+        first_pay_date = adjust_for_holidays_and_weekends_backward(date(current_year, current_month, 1), us_holidays)
+        paydates.append(first_pay_date)
+
+        # 15th of the month
+        fifteenth_pay_date = adjust_for_holidays_and_weekends_backward(date(current_year, current_month, 15),
+                                                                       us_holidays)
+        paydates.append(fifteenth_pay_date)
+
+        # Move to the next month
+        if current_month == 12:
+            current_month = 1
+            current_year += 1
+        else:
+            current_month += 1
+
+    return paydates
+
+# Example usage:
+start_year = 2023  # Example start year
+start_month = 1  # Example start month
+num_months = 12  # Number of months to generate pay dates for
+paydates = generate_bi_monthly_paydates(start_year, start_month, num_months)
+for paydate in paydates:
+    print(paydate)
+
+raise ("no")
 
 def calculate_total_returns(start_date, monthly_investment, dividend_tax_rate):
     # Fetch historical data
